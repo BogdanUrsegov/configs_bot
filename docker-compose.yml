@@ -11,24 +11,12 @@ services:
       - "8000:8000"
     volumes:
       - ./bot:/app/bot
+      - sqlite_data:/app/database.db  # Сохраняем базу данных
     depends_on:
-      - db
-      - cache
+      - cache  # Зависим только от Redis (если он нужен для FSM/кэша)
     restart: unless-stopped
     command: python -m bot.main
-
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: my_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    
+    user: "1000:1000" 
 
   cache:
     image: redis:7-alpine
@@ -37,5 +25,5 @@ services:
       - redis_data:/data
       
 volumes:
-  postgres_data:
   redis_data:
+  sqlite_data:

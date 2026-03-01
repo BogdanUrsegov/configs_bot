@@ -1,20 +1,28 @@
 # bot/database/session.py
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
-
+from urllib.parse import urlparse
 from .models import Base
+import logging
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL must be set in environment")
+logger = logging.getLogger(__name__)
 
-# Асинхронный движок
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///database.db")
+
+# Парсим URL для получения имени файла (опционально, если нужно логировать)
+parsed_url = urlparse(DATABASE_URL)
+db_name = parsed_url.path.lstrip('/')
+
+if not db_name:
+    logger.warning("Не удалось определить имя базы данных, используется дефолтное.")
+
+# Асинхронный движок для SQLite
+# check_same_thread=false критичен для асинхронности в многопоточных средах (aiogram)
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,
-    pool_size=5,
-    max_overflow=10,
+    connect_args={"check_same_thread": False},
+    pool_pre_ping=True,
 )
 
 # Фабрика сессий
@@ -25,5 +33,10 @@ AsyncSessionLocal = async_sessionmaker(
 
 async def init_db():
     """Создаёт таблицы, если их нет."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            logger.info(f"Таблицы успешно созданы/обновлены в {db_name}")
+    except Exception as e:
+        logger.error(f"Ошибка инициализации БД: {e}")
+        raise
