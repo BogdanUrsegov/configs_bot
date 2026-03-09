@@ -11,12 +11,12 @@ services:
       - "8000:8000"
     volumes:
       - ./bot:/app/bot
-      - sqlite_data:/app/database.db  # Сохраняем базу данных
+      - sqlite_data:/data
     depends_on:
       - cache  # Зависим только от Redis (если он нужен для FSM/кэша)
     restart: unless-stopped
     command: python -m bot.main
-    user: "1000:1000" 
+    user: "root"
 
   cache:
     image: redis:7-alpine

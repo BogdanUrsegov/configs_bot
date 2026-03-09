@@ -1,15 +1,15 @@
-from aiogram import Router, types
+from aiogram import F, Router, types
 from aiogram.filters import Command
 from bot.database.utils import user_checker, add_user
-from ..keyboards.inline_keyboards import start_menu
+from ..keyboards.inline_keyboards import BACK_CALL, start_menu
 
 
 router = Router()
 
 
-@router.message(Command("start"))
-async def cmd_start(message: types.Message):
-    await message.answer(
+@router.callback_query(F.data == BACK_CALL)
+async def profile_call(callback: types.CallbackQuery):
+    await callback.message.edit_text(
         "<b>Приветствуем!</b>\n\n"
 
         "<i>Конфиги для РФ — почти даром ⭐️</i>\n\n"
@@ -21,12 +21,3 @@ async def cmd_start(message: types.Message):
 
         reply_markup=start_menu
     )
-        
-    telegram_id = message.from_user.id
-
-    # Проверяем, существует ли пользователь
-    is_user = await user_checker(telegram_id)
-
-    if not is_user:
-        # Создаём нового пользователя
-        await add_user(telegram_id)

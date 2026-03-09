@@ -1,0 +1,1 @@
+PRICE_WEEK = 1

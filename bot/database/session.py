@@ -16,8 +16,6 @@ db_name = parsed_url.path.lstrip('/')
 if not db_name:
     logger.warning("Не удалось определить имя базы данных, используется дефолтное.")
 
-# Асинхронный движок для SQLite
-# check_same_thread=false критичен для асинхронности в многопоточных средах (aiogram)
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,

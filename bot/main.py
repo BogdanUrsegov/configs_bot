@@ -6,6 +6,9 @@ from redis.asyncio import Redis
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from bot.scheduler.tasks.get_configs import send_and_save_configs
+
 
 from bot.database.session import init_db
 from .create_bot import bot, ADMIN_ID
@@ -22,19 +25,48 @@ IS_POLLING = os.getenv("IS_POLLING", "1").strip().lower() in ("1", "true", "yes"
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-async def on_startup(**kwargs):
-    b = kwargs['bot']
-    await init_db()
-    if not IS_POLLING:
-        await b.set_webhook(f"{BASE_URL}{WEBHOOK_PATH}")
-    try: await b.send_message(ADMIN_ID, "✅ Бот запущен")
-    except: pass
 
-async def on_shutdown(**kwargs):
-    b = kwargs['bot']
+scheduler = AsyncIOScheduler()
+
+
+async def on_startup():
+    await init_db()
+
+    logger.info("🔄 Первичная загрузка конфигов перед стартом бота...")
+    try:
+        await send_and_save_configs(chat_id=ADMIN_ID)
+        logger.info("✅ Конфиги успешно загружены и сохранены в БД.")
+    except Exception as e:
+        logger.error(f"❌ Ошибка первичной загрузки конфигов: {e}")
+
+    scheduler.configure(job_defaults={
+        'coalesce': False,
+        'max_instances': 1,
+        'misfire_grace_time': 60
+    })
+    
+    scheduler.add_job(
+        func=send_and_save_configs,
+        trigger='interval',
+        seconds=10,
+        id=f'send_and_save_configs',
+        replace_existing=True,
+        misfire_grace_time=None,
+        kwargs={'chat_id': ADMIN_ID}
+    )
+
+    scheduler.start()
+    logger.info("✅ Scheduler started")
+
+    if not IS_POLLING:
+        await bot.set_webhook(f"{BASE_URL}{WEBHOOK_PATH}")
+    await bot.send_message(ADMIN_ID, "✅ Бот запущен")
+
+async def on_shutdown():
+    await bot.send_message(ADMIN_ID, "✋ Бот остановлен")
     await redis_client.close()
     if not IS_POLLING:
-        await b.delete_webhook(drop_pending_updates=True)
+        await bot.delete_webhook(drop_pending_updates=True)
 
 def create_dispatcher():
     global redis_client
@@ -61,4 +93,5 @@ if __name__ == "__main__":
     try:
         if IS_POLLING: asyncio.run(run_polling())
         else: run_webhook()
-    except (KeyboardInterrupt, SystemExit): pass
+    except (KeyboardInterrupt, SystemExit): 
+        pass
