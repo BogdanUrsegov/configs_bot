@@ -48,7 +48,7 @@ async def on_startup():
     scheduler.add_job(
         func=send_and_save_configs,
         trigger='interval',
-        seconds=10,
+        seconds=3600,
         id=f'send_and_save_configs',
         replace_existing=True,
         misfire_grace_time=None,

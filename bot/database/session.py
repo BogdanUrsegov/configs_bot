@@ -7,14 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///database.db")
-
-# Парсим URL для получения имени файла (опционально, если нужно логировать)
-parsed_url = urlparse(DATABASE_URL)
-db_name = parsed_url.path.lstrip('/')
-
-if not db_name:
-    logger.warning("Не удалось определить имя базы данных, используется дефолтное.")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:////data/bot.db")
 
 engine = create_async_engine(
     DATABASE_URL,
@@ -34,7 +27,7 @@ async def init_db():
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-            logger.info(f"Таблицы успешно созданы/обновлены в {db_name}")
+            logger.info(f"Таблицы успешно созданы/обновлены в {DATABASE_URL}")
     except Exception as e:
         logger.error(f"Ошибка инициализации БД: {e}")
         raise

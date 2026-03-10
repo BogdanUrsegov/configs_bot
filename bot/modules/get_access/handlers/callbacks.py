@@ -9,7 +9,7 @@ from bot.database.utils.is_subscription_active import is_subscription_active
 from bot.scheduler.tasks.get_configs import send_and_save_configs
 from ..keyboards.inline_keyboards import get_access_menu
 from ..keyboards.inline_keyboards import GET_ACCESS_CALL, WEEK_SUB_CALL
-from bot.modules.buy_sub.keyboards.inline_keyboards import buy_sub_menu
+from bot.modules.buy_sub.keyboards.inline_keyboards import get_buy_sub_menu
 
 
 logger = logging.getLogger(__name__)
@@ -23,15 +23,14 @@ async def get_access_call(callback: types.CallbackQuery, state: FSMContext, bot:
 
     if not await is_subscription_active(user_id):
         await callback.answer("⛔️ Отсутствует подписка")
-        await callback.message.answer(
+        await callback.message.edit_text(
                                     f"<b>🔐 VLESS конфиги — {PRICE_WEEK} Stars на неделю</b>\n\n"
                                     f"✅ Ежедневно: Под телефон + Все проверенные\n"
                                     f"📱 <b>PC, iOS, Android</b> (v2rayN, Streisand, V2Box и тд)\n"
                                     f"⚙️ <b>Установка:</b> Копируй → Импорт из буфера → Обновить\n\n"
-                                    f"/guide — <b>Подробная инструкция</b>\n\n"
                                     f"<b>🚀 Жми кнопку для доступа!</b>"
                                     , 
-                                    reply_markup=buy_sub_menu
+                                    reply_markup=get_buy_sub_menu()
     )
     else:
         await callback.answer("⏳ Загрузка актуальных списков...")
@@ -48,7 +47,7 @@ async def get_access_call(callback: types.CallbackQuery, state: FSMContext, bot:
             else:
                 date_str = "Неизвестно"
                 
-            caption = f"конфиги:\n🕒 Обновлено: {date_str}"
+            caption = f"🕒 Обновлено: {date_str}"
             
             try:
                 await bot.send_media_group(
@@ -76,7 +75,7 @@ async def week_sub_call(callback: types.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     if await is_subscription_active(user_id):
         await callback.answer("⛔️ Отсутствует подписка")
-        await callback.message.answer("ℹ️ <b>Нужно приобрести подписку, чтобы начать получать свежие конфиги каждый день!</b>", reply_markup=buy_sub_menu)
+        await callback.message.answer("ℹ️ <b>Нужно приобрести подписку, чтобы начать получать свежие конфиги каждый день!</b>", reply_markup=get_buy_sub_menu())
     else:
         await callback.message.answer("⏳ Загрузка актуальных списков...")
     
@@ -84,4 +83,3 @@ async def week_sub_call(callback: types.CallbackQuery, state: FSMContext):
         
         if not success:
             await callback.message.answer("⚠️ Произошла ошибка при получении данных.")
-

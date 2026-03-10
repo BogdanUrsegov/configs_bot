@@ -9,6 +9,7 @@ router = Router()
 
 @router.callback_query(F.data == BACK_CALL)
 async def profile_call(callback: types.CallbackQuery):
+    await callback.answer("🏠 Главное меню")
     await callback.message.edit_text(
         "<b>Приветствуем!</b>\n\n"
 

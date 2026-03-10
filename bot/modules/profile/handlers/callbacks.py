@@ -1,7 +1,6 @@
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from ..keyboards.inline_keyboards import PROFILE_CALL
-from bot.modules.buy_sub.keyboards.inline_keyboards import buy_sub_menu
 from bot.database.utils.get_subscription_status import get_subscription_status
 
 
@@ -14,7 +13,7 @@ async def profile_call(callback: types.CallbackQuery, state: FSMContext):
     # Получаем словарь со статусом и датой
     data = await get_subscription_status(user_id)
     status = data["status"]
-    date_info = data["date"] if data["date"] else "—"
+    date_info = data["date"] if data["date"] else "-"
 
     await callback.answer()
 
