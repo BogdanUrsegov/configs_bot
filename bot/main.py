@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from bot.middlewares.logging import TelegramLogHandler
 from bot.scheduler.tasks.get_configs import send_and_save_configs
 
 
@@ -21,9 +22,11 @@ BASE_URL = os.getenv("WEBHOOK_BASE_URL", "")
 HOST = os.getenv("WEBHOOK_HOST", "0.0.0.0")
 PORT = int(os.getenv("WEBHOOK_PORT", "8000"))
 IS_POLLING = os.getenv("IS_POLLING", "1").strip().lower() in ("1", "true", "yes", "on")
+LOG_CHANNEL_ID = os.getenv("LOG_CHANNEL_ID")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
+# logger.addHandler(TelegramLogHandler(bot=bot, chat_id=LOG_CHANNEL_ID))
 
 
 scheduler = AsyncIOScheduler()

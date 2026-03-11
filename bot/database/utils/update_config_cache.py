@@ -14,8 +14,8 @@ async def update_config_cache(
     date_ts: int
 ) -> bool:
     """
-    Обновляет или создает запись кэша конфигов.
-    Возвращает True при успехе, False при ошибке БД.
+    Обновляет кэш конфигов только если новый timestamp свежее текущего.
+    Возвращает True при успешном обновлении, False если кэш актуален или ошибка БД.
     """
     async with AsyncSessionLocal() as session:
         try:
@@ -34,16 +34,26 @@ async def update_config_cache(
                     updated_at_ts=date_ts
                 )
                 session.add(record)
-                logger.info("Создана новая запись кэша конфигов (id=1)")
-            else:
-                # Если есть, обновляем поля
-                record.full_file_id = full_file_id
-                record.mobile_file_id = mobile_file_id
-                record.updated_at_str = date_str
-                record.updated_at_ts = date_ts
-                logger.info(f"Кэш конфигов обновлен: TS={date_ts}")
-
+                await session.commit()
+                logger.info(f"✅ Создана новая запись кэша конфигов (TS: {date_ts})")
+                return True
+            
+            # Если запись есть, сравниваем timestamp
+            current_ts = record.updated_at_ts or 0
+            
+            if date_ts <= current_ts:
+                # Новый конфиг не свежее текущего, игнорируем
+                logger.info(f"⏭ Кэш актуален. Новый TS={date_ts} <= Текущий TS={current_ts}")
+                return False
+            
+            # Новый конфиг свежее, обновляем запись
+            record.full_file_id = full_file_id
+            record.mobile_file_id = mobile_file_id
+            record.updated_at_str = date_str
+            record.updated_at_ts = date_ts
+            
             await session.commit()
+            logger.info(f"✅ Кэш обновлен: TS={current_ts} → TS={date_ts}")
             return True
 
         except SQLAlchemyError as e:
@@ -53,4 +63,4 @@ async def update_config_cache(
         except Exception as e:
             await session.rollback()
             logger.critical(f"Критическая ошибка update_config_cache: {e}")
-            raise  # Перевыбрасываем критические ошибки
+            raise

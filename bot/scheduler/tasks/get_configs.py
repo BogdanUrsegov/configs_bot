@@ -8,6 +8,7 @@ from aiogram.exceptions import TelegramAPIError
 # Импорт вашей функции сохранения в БД
 from bot.database.utils.update_config_cache import update_config_cache
 from bot.create_bot import bot
+from bot.utils.broadcast import broadcast
 
 REPO_RAW = "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main"
 ORIGINAL_FILES = [
@@ -80,7 +81,7 @@ async def send_and_save_configs(chat_id: int) -> bool:
             caption = None
             if i == 1:
                 readable_date = datetime.fromtimestamp(ts_updated, tz=timezone.utc).strftime("%d.%m.%Y %H:%M") if ts_updated else "Неизвестно"
-                caption = f"конфиги:\n🕒 Обновлено: {readable_date}"
+                caption = f"🕒 Обновлено: {readable_date}"
             
             media_group.append(
                 types.InputMediaDocument(
@@ -123,10 +124,9 @@ async def send_and_save_configs(chat_id: int) -> bool:
                     date_ts=final_ts
                 )
                 
-                if not db_success:
-                    # Если запись в БД не удалась, можно отправить уведомление админу или залогировать
-                    pass 
-                    
+                if db_success:
+                    await broadcast()
+                
                 return True
             else:
                 return False

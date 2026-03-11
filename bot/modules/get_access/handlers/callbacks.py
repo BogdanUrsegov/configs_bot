@@ -7,8 +7,7 @@ from bot.modules.constants import PRICE_WEEK
 
 from bot.database.utils.is_subscription_active import is_subscription_active
 from bot.scheduler.tasks.get_configs import send_and_save_configs
-from ..keyboards.inline_keyboards import get_access_menu
-from ..keyboards.inline_keyboards import GET_ACCESS_CALL, WEEK_SUB_CALL
+from ..keyboards.inline_keyboards import GET_ACCESS_CALL
 from bot.modules.buy_sub.keyboards.inline_keyboards import get_buy_sub_menu
 
 
@@ -47,7 +46,7 @@ async def get_access_call(callback: types.CallbackQuery, state: FSMContext, bot:
             else:
                 date_str = "Неизвестно"
                 
-            caption = f"🕒 Обновлено: {date_str}"
+            caption = f"🕒 Обновлено: {date_str} UTC"
             
             try:
                 await bot.send_media_group(
@@ -60,26 +59,11 @@ async def get_access_call(callback: types.CallbackQuery, state: FSMContext, bot:
             except Exception as e:
                 logger.error(f"Ошибка отправки из кэша (возможно, файл удален): {e}")
                 # Если файл удален телеграмом (ошибка 400), нужно перегенерировать
-                await callback.message.answer("⚠️ Кэш устарел или поврежден. Загружаю новые файлы...")
+                await callback.message.answer("⚠️ Файлов нет или они повреждены. Загружаю новые файлы...")
                 await send_and_save_configs(user_id)
                 
         else:
             # ❌ Кэша нет: скачиваем, отправляем и сохраняем в БД
             logger.warning("Кэш конфигов пуст. Запуск полной загрузки.")
-            await callback.message.answer("⏳ Кэш пуст. Скачиваю актуальные списки с GitHub...")
+            await callback.message.answer("⏳ Файлов нет. Скачиваю актуальные списки...")
             await send_and_save_configs(user_id)
-
-    
-@router.callback_query(F.data == WEEK_SUB_CALL)
-async def week_sub_call(callback: types.CallbackQuery, state: FSMContext):
-    user_id = callback.from_user.id
-    if await is_subscription_active(user_id):
-        await callback.answer("⛔️ Отсутствует подписка")
-        await callback.message.answer("ℹ️ <b>Нужно приобрести подписку, чтобы начать получать свежие конфиги каждый день!</b>", reply_markup=get_buy_sub_menu())
-    else:
-        await callback.message.answer("⏳ Загрузка актуальных списков...")
-    
-        success = await send_and_save_configs(user_id)
-        
-        if not success:
-            await callback.message.answer("⚠️ Произошла ошибка при получении данных.")
