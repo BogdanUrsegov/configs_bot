@@ -25,6 +25,7 @@ async def get_access_call(callback: types.CallbackQuery, state: FSMContext, bot:
         await callback.message.edit_text(
                                     f"<b>🔐 VLESS конфиги — {PRICE_WEEK} Stars на неделю</b>\n\n"
                                     f"✅ Ежедневно: Под телефон + Все проверенные\n"
+                                    f"🔥 Админ пользуется сам\n"
                                     f"📱 <b>PC, iOS, Android</b> (v2rayN, Streisand, V2Box и тд)\n"
                                     f"⚙️ <b>Установка:</b> Копируй → Импорт из буфера → Обновить\n\n"
                                     f"<b>🚀 Жми кнопку для доступа!</b>"

@@ -26,7 +26,7 @@ LOG_CHANNEL_ID = os.getenv("LOG_CHANNEL_ID")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger()
-# logger.addHandler(TelegramLogHandler(bot=bot, chat_id=LOG_CHANNEL_ID))
+logger.addHandler(TelegramLogHandler(bot=bot, chat_id=LOG_CHANNEL_ID))
 
 
 scheduler = AsyncIOScheduler()
@@ -50,9 +50,9 @@ async def on_startup():
     
     scheduler.add_job(
         func=send_and_save_configs,
-        trigger='interval',
-        seconds=3600,
-        id=f'send_and_save_configs',
+        trigger='cron',
+        minute=0,  # Запуск в 00 минут каждого часа
+        id='send_and_save_configs',
         replace_existing=True,
         misfire_grace_time=None,
         kwargs={'chat_id': ADMIN_ID}

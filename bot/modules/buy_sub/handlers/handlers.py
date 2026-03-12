@@ -40,6 +40,6 @@ async def process_successful_payment(message: types.Message):
     await message.answer(
         "✅ <b>Оплата прошла успешно!</b>\n\n"
                          
-        "📲 Вернитесь обратно и нажмите кнопку для получения свежих конфигураций",
+        "📲 <i>Вернитесь обратно и нажмите кнопку для получения свежих конфигураций</i>",
         reply_markup=back_menu
     )

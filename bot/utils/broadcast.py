@@ -31,7 +31,7 @@ async def broadcast() -> Dict[str, int]:
     stats = {'sent': 0, 'failed': 0, 'blocked': 0}
     current_delay = BASE_DELAY
     
-    text_msg = "🔔 <b>Доступны новые конфиги!</b>\n\nСписки обновлены. Жмите кнопку ниже 👇"
+    text_msg = "🔔 <b>Доступны новые конфиги!</b>\n\n<i>Списки обновлены. Жмите кнопку ниже</i> 👇"
 
     for i, tid in enumerate(subscribers):
         try:

@@ -1,5 +1,5 @@
 from typing import Optional
-from sqlalchemy import Integer, DateTime, BigInteger, String, func
+from sqlalchemy import Float, Integer, DateTime, BigInteger, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import datetime
 
@@ -12,6 +12,8 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False, index=True)
+
+    reputation: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
     
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
