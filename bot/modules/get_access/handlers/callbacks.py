@@ -3,7 +3,7 @@ from aiogram import F, Bot, Router, types
 from aiogram.fsm.context import FSMContext
 from bot.database.utils.get_config_cache import get_config_cache
 import logging
-from bot.modules.constants import PRICE_WEEK
+from bot.modules.constants import PRICE_WEEK, REP_FOR_BUY
 
 from bot.database.utils.is_subscription_active import is_subscription_active
 from bot.scheduler.tasks.get_configs import send_and_save_configs
@@ -22,12 +22,18 @@ async def get_access_call(callback: types.CallbackQuery, state: FSMContext, bot:
 
     if not await is_subscription_active(user_id):
         await callback.answer("⛔️ Отсутствует подписка")
+        bot_info = await bot.get_me()
+        username = bot_info.username
+        start_link = f"https://t.me/{username}?start=reputation"
         await callback.message.edit_text(
                                     f"<b>🔐 VLESS конфиги — {PRICE_WEEK} Stars на неделю</b>\n\n"
+
+                                    f"🔥 <i>Админ пользуется сам</i>\n\n"
                                     f"✅ Ежедневно: Под телефон + Все проверенные\n"
-                                    f"🔥 Админ пользуется сам\n"
                                     f"📱 <b>PC, iOS, Android</b> (v2rayN, Streisand, V2Box и тд)\n"
                                     f"⚙️ <b>Установка:</b> Копируй → Импорт из буфера → Обновить\n\n"
+
+                                    f"✨ <i>После оплаты ты получишь {REP_FOR_BUY} очков <a href='{start_link}'>репутации</a></i>\n\n"
                                     f"<b>🚀 Жми кнопку для доступа!</b>"
                                     , 
                                     reply_markup=get_buy_sub_menu()
