@@ -24,7 +24,7 @@ PORT = int(os.getenv("WEBHOOK_PORT", "8000"))
 IS_POLLING = os.getenv("IS_POLLING", "1").strip().lower() in ("1", "true", "yes", "on")
 LOG_CHANNEL_ID = os.getenv("LOG_CHANNEL_ID")
 
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger()
 logger.addHandler(TelegramLogHandler(bot=bot, chat_id=LOG_CHANNEL_ID))
 
