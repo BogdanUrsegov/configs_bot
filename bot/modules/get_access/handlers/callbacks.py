@@ -3,7 +3,7 @@ from aiogram import F, Bot, Router, types
 from aiogram.fsm.context import FSMContext
 from bot.database.utils.get_config_cache import get_config_cache
 import logging
-from bot.modules.constants import PRICE_WEEK, REP_FOR_BUY
+from bot.modules.constants import PRICE_WEEK, REP_FOR_BUY, TEXT_UNDER_FILES
 
 from bot.database.utils.is_subscription_active import is_subscription_active
 from bot.scheduler.tasks.get_configs import send_and_save_configs
@@ -53,7 +53,7 @@ async def get_access_call(callback: types.CallbackQuery, state: FSMContext, bot:
             else:
                 date_str = "Неизвестно"
                 
-            caption = f"🕒 Обновлено: {date_str} UTC"
+            caption = TEXT_UNDER_FILES.format(date_str=date_str)
             
             try:
                 await bot.send_media_group(

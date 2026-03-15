@@ -6,6 +6,7 @@ from bot.modules.buy_sub import router as buy_sub_router
 from bot.modules.profile import router as profile_router
 from bot.modules.instruction import router as instruction_router
 from bot.modules.reputation import router as reputation_router
+from bot.modules.admin import router as admin_router
 
 
 router = Router()
@@ -16,7 +17,8 @@ router.include_routers(
                         extradition_router,
                         buy_sub_router,
                         profile_router,
-                        instruction_router
+                        instruction_router,
+                        admin_router
                         
                        )
 

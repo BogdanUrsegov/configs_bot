@@ -8,6 +8,7 @@ from aiogram.exceptions import TelegramAPIError
 # Импорт вашей функции сохранения в БД
 from bot.database.utils.update_config_cache import update_config_cache
 from bot.create_bot import bot
+from bot.modules.constants import TEXT_UNDER_FILES
 from bot.utils.broadcast import broadcast
 
 REPO_RAW = "https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/main"
@@ -81,7 +82,7 @@ async def send_and_save_configs(chat_id: int) -> bool:
             caption = None
             if i == 1:
                 readable_date = datetime.fromtimestamp(ts_updated, tz=timezone.utc).strftime("%d.%m.%Y %H:%M") if ts_updated else "Неизвестно"
-                caption = f"🕒 Обновлено: {readable_date}"
+                caption = TEXT_UNDER_FILES.format(date_str=date_str)
             
             media_group.append(
                 types.InputMediaDocument(

@@ -4,6 +4,10 @@ from bot.database.utils import user_checker, add_user
 from bot.database.utils.add_rep import add_rep
 from bot.modules.constants import REP_FOR_USER
 from ..keyboards.inline_keyboards import start_menu
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 router = Router()
@@ -34,6 +38,7 @@ async def cmd_start(message: types.Message, bot: Bot):
         referrer_id = None
         # теперь получаем из параметра старт реферрер ид
         referrer_id = int(message.text.split()[1]) if len(message.text.split()) > 1 and message.text.split()[1].isdigit() else None
+        logger.info(f"Новый пользователь {telegram_id} пришёл по реферальной ссылке от {referrer_id}")
         await add_user(telegram_id)
         res = await add_rep(referrer_id, REP_FOR_USER)
         if res and referrer_id:

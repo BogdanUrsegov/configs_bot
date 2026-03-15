@@ -1,7 +1,7 @@
 from aiogram import Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
-from magic_filter import F
+from aiogram import F
 
 from bot.database.utils.get_user_reputation import get_user_reputation
 from bot.modules.constants import CONF_FOR_REP
@@ -10,7 +10,7 @@ from bot.modules.reputation.keyboards.inline_keyboards import get_reputation_men
 
 router = Router()
 
-@router.message(CommandStart(F.args == "reputation"))
+@router.message(CommandStart(), F.args == "reputation")
 async def start_reputation(message: Message):
     user_id = message.from_user.id
     reputation = await get_user_reputation(user_id)

@@ -1,7 +1,10 @@
 from aiogram import F, Bot, Router, types
 from aiogram.fsm.context import FSMContext
+
+from bot.database.utils.add_rep import add_rep
+from bot.database.utils.sub_rep import sub_rep
 from ..keyboards.inline_keyboards import BUY_SUB_CALL
-from bot.modules.constants import PRICE_WEEK
+from bot.modules.constants import PRICE_WEEK, REP_FOR_BUY
 from aiogram.types import LabeledPrice
 from bot.database.utils.set_subscription_week import set_subscription_week
 
@@ -36,6 +39,7 @@ async def process_pre_checkout(query: types.PreCheckoutQuery):
 async def process_successful_payment(message: types.Message):
     user_id = message.from_user.id
     await set_subscription_week(user_id)
+    await add_rep(user_id, REP_FOR_BUY)
     from bot.modules.start.keyboards.inline_keyboards import back_menu
     await message.answer(
         "✅ <b>Оплата прошла успешно!</b>\n\n"
